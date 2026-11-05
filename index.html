@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Pizza Pop!</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Prompt:wght@400;600;800&display=swap');
+*{box-sizing:border-box}
+body{margin:0;background:#fff4d9;color:#34251e;font-family:Prompt,sans-serif}
+header{background:#a92e24;color:#fff4d9;text-align:center;padding:24px;border-bottom:7px solid #e7ad48}
+.logo{font:clamp(48px,10vw,75px) 'DM Serif Display';margin:5px;text-shadow:3px 4px #6e211c}
+header p{letter-spacing:3px;font-size:12px}
+main{max-width:900px;margin:auto;padding:20px}
+h2{text-align:center;font:30px 'DM Serif Display'}
+.layout{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+.panel{background:#fffaf0;border:3px solid #34251e;border-radius:15px;padding:16px;box-shadow:5px 6px #34251e}
+h3{font:23px 'DM Serif Display';border-bottom:2px dashed #d8b98b;padding-bottom:8px}
+.stage{height:310px;background:#f4dfb7;border:2px dashed #c79d61;border-radius:12px;display:grid;place-items:center;position:relative}
+.pizza{width:min(70vw,260px);aspect-ratio:1;border-radius:50%;background:#d99a4d;border:15px solid #b86e35;position:relative;box-shadow:0 8px #8f4c29;overflow:hidden}
+.cheese{position:absolute;inset:9px;border-radius:50%;background:#f6d76d;z-index:1}
+.t{position:absolute;z-index:2;transform:translate(-50%,-50%);font-size:25px}
+.stage small{position:absolute;bottom:8px}
+.group{margin:14px 0}
+.label{font-weight:800;font-size:13px;margin-bottom:7px}
+.choices{display:flex;flex-wrap:wrap;gap:7px}
+button{font:600 12px Prompt;border:2px solid #34251e;border-radius:9px;padding:8px 10px;background:#fff4d9;cursor:pointer}
+button.active{background:#e7ad48}
+.top{font-size:20px}
+.actions{display:flex;gap:8px;margin-top:14px}
+.primary{background:#a92e24;color:white;flex:1;padding:12px}
+.result{display:none;text-align:center;background:#e5edcf;padding:12px;margin-top:12px;border:2px solid #55734b;border-radius:10px}
+.result.show{display:block}
+.result b{font:28px 'DM Serif Display';color:#55734b}
+footer{text-align:center;padding:20px;font-size:11px}
+@media(max-width:650px){.layout{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<header>
+<div>✦ LITTLE ITALY • PIZZA CLUB ✦</div>
+<h1 class="logo">PIZZA POP!</h1>
+<p>MAKE IT • BAKE IT • LOVE IT</p>
+</header>
+<main>
+<h2>Your pizza, your rules! 🍕</h2>
+<div class="layout">
+<section class="panel">
+<h3>① Your masterpiece</h3>
+<div class="stage">
+<div class="pizza" id="pizza"><div class="cheese" id="cheese"></div></div>
+<small>FRESH FROM YOUR IMAGINATION</small>
+</div>
+<div class="actions">
+<button id="reset">เริ่มใหม่ ↻</button>
+<button class="primary" id="bake">BAKE MY PIZZA!</button>
+</div>
+<div class="result" id="result">
+<b id="score"></b>
+<div id="message"></div>
+</div>
+</section>
+<section class="panel">
+<h3>② Pizza workshop</h3>
+<div class="group">
+<div class="label">CRUST / ขอบแป้ง</div>
+<div class="choices" id="crust">
+<button class="active" data-v="classic">Classic</button>
+<button data-v="golden">Golden</button>
+<button data-v="thick">Thick</button>
+</div>
+</div>
+<div class="group">
+<div class="label">SAUCE / ซอส</div>
+<div class="choices" id="sauce">
+<button class="active" data-v="tomato">🍅 Tomato</button>
+<button data-v="white">🤍 White</button>
+<button data-v="pesto">🌿 Pesto</button>
+</div>
+</div>
+<div class="group">
+<div class="label">CHEESE / ชีส</div>
+<div class="choices" id="cheeseChoice">
+<button class="active" data-v="yes">🧀 Extra cheese</button>
+<button data-v="no">No cheese</button>
+</div>
+</div>
+<div class="group">
+<div class="label">TOPPINGS / แตะเพื่อเพิ่ม</div>
+<div class="choices" id="toppings">
+<button class="top" data-e="🍄">🍄</button>
+<button class="top" data-e="🍅">🍅</button>
+<button class="top" data-e="🫒">🫒</button>
+<button class="top" data-e="🌶️">🌶️</button>
+<button class="top" data-e="🍍">🍍</button>
+<button class="top" data-e="🥓">🥓</button>
+<button class="top" data-e="🌽">🌽</button>
+<button class="top" data-e="🧅">🧅</button>
+<button class="top" data-e="🌿">🌿</button>
+</div>
+<small>แตะซ้ำเพื่อเพิ่มท็อปปิ้งได้เลย!</small>
+</div>
+</section>
+</div>
+</main>
+<footer>MADE WITH ♥ AND EXTRA CHEESE • PIZZA POP! 2026</footer>
+<script>
+const pizza=document.getElementById('pizza');
+const cheese=document.getElementById('cheese');
+const result=document.getElementById('result');
+let state={crust:'classic',sauce:'tomato',cheese:'yes',t:[]};
+const pos=[[50,24],[70,34],[76,57],[61,75],[37,74],[25,53],[32,35],[50,50],[51,17],[81,45],[43,60],[64,43],[36,48],[56,63],[22,39],[70,68],[49,84],[18,58],[83,61],[30,68]];
+function draw(){
+pizza.querySelectorAll('.t').forEach(x=>x.remove());
+pizza.style.borderWidth=state.crust==='thick'?'20px':state.crust==='golden'?'16px':'15px';
+pizza.style.borderColor=state.crust==='golden'?'#d58a31':state.crust==='thick'?'#a95e2c':'#b86e35';
+pizza.style.background=state.sauce==='pesto'?'#88a65b':state.sauce==='white'?'#f4e4bd':'#d99a4d';
+cheese.style.display=state.cheese==='yes'?'block':'none';
+state.t.forEach((e,i)=>{
+let x=document.createElement('span');
+x.className='t';x.textContent=e;
+x.style.left=pos[i%pos.length][0]+'%';
+x.style.top=pos[i%pos.length][1]+'%';
+pizza.append(x);
+});
+}
+['crust','sauce'].forEach(id=>{
+document.querySelectorAll('#'+id+' button').forEach(b=>b.onclick=()=>{
+b.parentElement.querySelectorAll('button').forEach(x=>x.classList.remove('active'));
+b.classList.add('active');state[id]=b.dataset.v;draw();
+});
+});
+document.querySelectorAll('#cheeseChoice button').forEach(b=>b.onclick=()=>{
+b.parentElement.querySelectorAll('button').forEach(x=>x.classList.remove('active'));
+b.classList.add('active');state.cheese=b.dataset.v;draw();
+});
+document.querySelectorAll('#toppings button').forEach(b=>b.onclick=()=>{
+state.t.push(b.dataset.e);draw();
+});
+document.getElementById('reset').onclick=()=>{
+state={crust:'classic',sauce:'tomato',cheese:'yes',t:[]};
+document.querySelectorAll('.choices button').forEach(b=>b.classList.remove('active'));
+['crust','sauce','cheeseChoice'].forEach(id=>document.querySelector('#'+id+' button').classList.add('active'));
+result.classList.remove('show');draw();
+};
+document.getElementById('bake').onclick=()=>{
+let n=Math.min(100,70+state.t.length*5+(state.cheese==='yes'?5:0));
+document.getElementById('score').textContent=n+'%';
+document.getElementById('message').textContent=n>=95?'MAMMA MIA! พิซซ่าสุดปัง! 🍕':'Bellissimo! น่ากินมากกก!';
+result.classList.add('show');
+};
+draw();
+</script>
+</body>
+</html>
