@@ -6,6 +6,7 @@
 <title>Pizza Pop!</title>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Prompt:wght@400;600;800&display=swap');
+
 *{box-sizing:border-box}
 body{margin:0;background:#fff4d9;color:#34251e;font-family:Prompt,sans-serif}
 header{background:#a92e24;color:#fff4d9;text-align:center;padding:24px;border-bottom:7px solid #e7ad48}
@@ -16,23 +17,61 @@ h2{text-align:center;font:30px 'DM Serif Display'}
 .layout{display:grid;grid-template-columns:1fr 1fr;gap:18px}
 .panel{background:#fffaf0;border:3px solid #34251e;border-radius:15px;padding:16px;box-shadow:5px 6px #34251e}
 h3{font:23px 'DM Serif Display';border-bottom:2px dashed #d8b98b;padding-bottom:8px}
-.stage{height:310px;background:#f4dfb7;border:2px dashed #c79d61;border-radius:12px;display:grid;place-items:center;position:relative}
-.pizza{width:min(70vw,260px);aspect-ratio:1;border-radius:50%;background:#d99a4d;border:15px solid #b86e35;position:relative;box-shadow:0 8px #8f4c29;overflow:hidden}
-.cheese{position:absolute;inset:9px;border-radius:50%;background:#f6d76d;z-index:1}
-.t{position:absolute;z-index:2;transform:translate(-50%,-50%);font-size:25px}
+.stage{height:310px;background:#f4dfb7;border:2px dashed #c79d61;border-radius:12px;display:grid;place-items:center;position:relative;overflow:hidden}
+.pizza{width:min(70vw,260px);aspect-ratio:1;border-radius:50%;background:#d99a4d;border:15px solid #b86e35;position:relative;box-shadow:0 8px #8f4c29;overflow:hidden;transition:transform .3s}
+.sauce-layer{position:absolute;inset:9px;border-radius:50%;z-index:1;transform:scale(0);opacity:0}
+.sauce-layer.tomato{background:#d94b35}
+.sauce-layer.white{background:#f4e4bd}
+.sauce-layer.pesto{background:#88a65b}
+.cheese{position:absolute;inset:9px;border-radius:50%;background:#f6d76d;z-index:2;transition:opacity .3s}
+.t{position:absolute;z-index:3;transform:translate(-50%,-50%);font-size:25px;animation:toppingPop .55s cubic-bezier(.2,1.6,.5,1) both}
 .stage small{position:absolute;bottom:8px}
 .group{margin:14px 0}
 .label{font-weight:800;font-size:13px;margin-bottom:7px}
 .choices{display:flex;flex-wrap:wrap;gap:7px}
-button{font:600 12px Prompt;border:2px solid #34251e;border-radius:9px;padding:8px 10px;background:#fff4d9;cursor:pointer}
+button{font:600 12px Prompt;border:2px solid #34251e;border-radius:9px;padding:8px 10px;background:#fff4d9;cursor:pointer;transition:.2s}
+button:active{transform:scale(.94)}
 button.active{background:#e7ad48}
 .top{font-size:20px}
 .actions{display:flex;gap:8px;margin-top:14px}
 .primary{background:#a92e24;color:white;flex:1;padding:12px}
 .result{display:none;text-align:center;background:#e5edcf;padding:12px;margin-top:12px;border:2px solid #55734b;border-radius:10px}
-.result.show{display:block}
+.result.show{display:block;animation:pop .5s}
 .result b{font:28px 'DM Serif Display';color:#55734b}
 footer{text-align:center;padding:20px;font-size:11px}
+.sauce-layer.pouring{animation:saucePour .9s ease-out forwards}
+.cheese.sprinkle{animation:cheeseSprinkle .7s ease-out}
+.pizza.baking{animation:wiggle .5s ease-in-out 3}
+.steam{position:absolute;z-index:5;font-size:25px;pointer-events:none;animation:steamUp 1.5s ease-out forwards}
+@keyframes saucePour{
+0%{transform:scale(0);opacity:0}
+40%{transform:scale(.5);opacity:1}
+100%{transform:scale(1);opacity:1}
+}
+@keyframes cheeseSprinkle{
+0%{opacity:0;transform:scale(.5)}
+60%{opacity:1;transform:scale(1.08)}
+100%{opacity:1;transform:scale(1)}
+}
+@keyframes toppingPop{
+0%{opacity:0;top:0;transform:translate(-50%,-50%) scale(.2) rotate(-30deg)}
+70%{opacity:1;transform:translate(-50%,-50%) scale(1.3) rotate(10deg)}
+100%{opacity:1;transform:translate(-50%,-50%) scale(1) rotate(0)}
+}
+@keyframes wiggle{
+0%,100%{transform:rotate(0) scale(1)}
+25%{transform:rotate(-3deg) scale(1.03)}
+75%{transform:rotate(3deg) scale(1.03)}
+}
+@keyframes steamUp{
+0%{opacity:0;transform:translateY(20px) scale(.7)}
+30%{opacity:1}
+100%{opacity:0;transform:translateY(-100px) scale(1.4)}
+}
+@keyframes pop{
+0%{transform:scale(.8);opacity:0}
+100%{transform:scale(1);opacity:1}
+}
 @media(max-width:650px){.layout{grid-template-columns:1fr}}
 </style>
 </head>
@@ -42,26 +81,34 @@ footer{text-align:center;padding:20px;font-size:11px}
 <h1 class="logo">PIZZA POP!</h1>
 <p>MAKE IT • BAKE IT • LOVE IT</p>
 </header>
+
 <main>
 <h2>Your pizza, your rules! 🍕</h2>
 <div class="layout">
 <section class="panel">
 <h3>① Your masterpiece</h3>
-<div class="stage">
-<div class="pizza" id="pizza"><div class="cheese" id="cheese"></div></div>
+<div class="stage" id="stage">
+<div class="pizza" id="pizza">
+<div class="sauce-layer tomato" id="sauceLayer"></div>
+<div class="cheese" id="cheese"></div>
+</div>
 <small>FRESH FROM YOUR IMAGINATION</small>
 </div>
+
 <div class="actions">
 <button id="reset">เริ่มใหม่ ↻</button>
 <button class="primary" id="bake">BAKE MY PIZZA!</button>
 </div>
+
 <div class="result" id="result">
 <b id="score"></b>
 <div id="message"></div>
 </div>
 </section>
+
 <section class="panel">
 <h3>② Pizza workshop</h3>
+
 <div class="group">
 <div class="label">CRUST / ขอบแป้ง</div>
 <div class="choices" id="crust">
@@ -70,6 +117,7 @@ footer{text-align:center;padding:20px;font-size:11px}
 <button data-v="thick">Thick</button>
 </div>
 </div>
+
 <div class="group">
 <div class="label">SAUCE / ซอส</div>
 <div class="choices" id="sauce">
@@ -78,6 +126,7 @@ footer{text-align:center;padding:20px;font-size:11px}
 <button data-v="pesto">🌿 Pesto</button>
 </div>
 </div>
+
 <div class="group">
 <div class="label">CHEESE / ชีส</div>
 <div class="choices" id="cheeseChoice">
@@ -85,6 +134,7 @@ footer{text-align:center;padding:20px;font-size:11px}
 <button data-v="no">No cheese</button>
 </div>
 </div>
+
 <div class="group">
 <div class="label">TOPPINGS / แตะเพื่อเพิ่ม</div>
 <div class="choices" id="toppings">
@@ -103,53 +153,138 @@ footer{text-align:center;padding:20px;font-size:11px}
 </section>
 </div>
 </main>
+
 <footer>MADE WITH ♥ AND EXTRA CHEESE • PIZZA POP! 2026</footer>
+
 <script>
 const pizza=document.getElementById('pizza');
 const cheese=document.getElementById('cheese');
+const sauceLayer=document.getElementById('sauceLayer');
+const stage=document.getElementById('stage');
 const result=document.getElementById('result');
+
 let state={crust:'classic',sauce:'tomato',cheese:'yes',t:[]};
-const pos=[[50,24],[70,34],[76,57],[61,75],[37,74],[25,53],[32,35],[50,50],[51,17],[81,45],[43,60],[64,43],[36,48],[56,63],[22,39],[70,68],[49,84],[18,58],[83,61],[30,68]];
+
+const pos=[
+[50,24],[70,34],[76,57],[61,75],[37,74],
+[25,53],[32,35],[50,50],[51,17],[81,45],
+[43,60],[64,43],[36,48],[56,63],[22,39],
+[70,68],[49,84],[18,58],[83,61],[30,68]
+];
+
 function draw(){
 pizza.querySelectorAll('.t').forEach(x=>x.remove());
-pizza.style.borderWidth=state.crust==='thick'?'20px':state.crust==='golden'?'16px':'15px';
-pizza.style.borderColor=state.crust==='golden'?'#d58a31':state.crust==='thick'?'#a95e2c':'#b86e35';
-pizza.style.background=state.sauce==='pesto'?'#88a65b':state.sauce==='white'?'#f4e4bd':'#d99a4d';
+
+pizza.style.borderWidth=
+state.crust==='thick'?'20px':
+state.crust==='golden'?'16px':'15px';
+
+pizza.style.borderColor=
+state.crust==='golden'?'#d58a31':
+state.crust==='thick'?'#a95e2c':'#b86e35';
+
+sauceLayer.className='sauce-layer '+state.sauce;
+sauceLayer.style.transform='scale(1)';
+sauceLayer.style.opacity='1';
+
 cheese.style.display=state.cheese==='yes'?'block':'none';
+
+if(state.cheese==='yes'){
+cheese.classList.remove('sprinkle');
+void cheese.offsetWidth;
+cheese.classList.add('sprinkle');
+}
+
 state.t.forEach((e,i)=>{
 let x=document.createElement('span');
-x.className='t';x.textContent=e;
+x.className='t';
+x.textContent=e;
 x.style.left=pos[i%pos.length][0]+'%';
 x.style.top=pos[i%pos.length][1]+'%';
+x.style.animationDelay=(i*.04)+'s';
 pizza.append(x);
 });
 }
-['crust','sauce'].forEach(id=>{
-document.querySelectorAll('#'+id+' button').forEach(b=>b.onclick=()=>{
+
+function pourSauce(){
+sauceLayer.className='sauce-layer '+state.sauce;
+sauceLayer.style.transform='scale(0)';
+sauceLayer.style.opacity='0';
+void sauceLayer.offsetWidth;
+sauceLayer.classList.add('pouring');
+}
+
+document.querySelectorAll('#crust button,#sauce button').forEach(b=>{
+b.onclick=()=>{
 b.parentElement.querySelectorAll('button').forEach(x=>x.classList.remove('active'));
-b.classList.add('active');state[id]=b.dataset.v;draw();
+b.classList.add('active');
+let group=b.closest('.group');
+let id=group.querySelector('.label').textContent.startsWith('CRUST')?'crust':'sauce';
+state[id]=b.dataset.v;
+if(id==='sauce')pourSauce();
+else draw();
+};
 });
-});
-document.querySelectorAll('#cheeseChoice button').forEach(b=>b.onclick=()=>{
+
+document.querySelectorAll('#cheeseChoice button').forEach(b=>{
+b.onclick=()=>{
 b.parentElement.querySelectorAll('button').forEach(x=>x.classList.remove('active'));
-b.classList.add('active');state.cheese=b.dataset.v;draw();
+b.classList.add('active');
+state.cheese=b.dataset.v;
+draw();
+};
 });
-document.querySelectorAll('#toppings button').forEach(b=>b.onclick=()=>{
-state.t.push(b.dataset.e);draw();
+
+document.querySelectorAll('#toppings button').forEach(b=>{
+b.onclick=()=>{
+state.t.push(b.dataset.e);
+draw();
+};
 });
+
 document.getElementById('reset').onclick=()=>{
 state={crust:'classic',sauce:'tomato',cheese:'yes',t:[]};
+
 document.querySelectorAll('.choices button').forEach(b=>b.classList.remove('active'));
-['crust','sauce','cheeseChoice'].forEach(id=>document.querySelector('#'+id+' button').classList.add('active'));
-result.classList.remove('show');draw();
+
+['crust','sauce','cheeseChoice'].forEach(id=>{
+document.querySelector('#'+id+' button').classList.add('active');
+});
+
+result.classList.remove('show');
+pizza.classList.remove('baking');
+draw();
 };
+
 document.getElementById('bake').onclick=()=>{
 let n=Math.min(100,70+state.t.length*5+(state.cheese==='yes'?5:0));
+
+pizza.classList.remove('baking');
+void pizza.offsetWidth;
+pizza.classList.add('baking');
+
+for(let i=0;i<3;i++){
+let s=document.createElement('span');
+s.className='steam';
+s.textContent='♨️';
+s.style.left=(35+i*15)+'%';
+s.style.top='45%';
+stage.append(s);
+setTimeout(()=>s.remove(),1600);
+}
+
 document.getElementById('score').textContent=n+'%';
-document.getElementById('message').textContent=n>=95?'MAMMA MIA! พิซซ่าสุดปัง! 🍕':'Bellissimo! น่ากินมากกก!';
+document.getElementById('message').textContent=
+n>=95?'MAMMA MIA! พิซซ่าสุดปัง! 🍕':
+'Bellissimo! น่ากินมากกก!';
+
+result.classList.remove('show');
+void result.offsetWidth;
 result.classList.add('show');
 };
+
 draw();
+pourSauce();
 </script>
 </body>
 </html>
