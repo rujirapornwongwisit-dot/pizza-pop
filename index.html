@@ -73,8 +73,11 @@ footer{text-align:center;padding:20px;font-size:10px;color:#80634a}
 </main>
 <footer>MADE WITH ♥ IN LITTLE ITALY • PIZZA POP!</footer>
 <div id="dragBadge"></div>
+<script type="importmap">
+{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js"}}
+</script>
 <script type="module">
-import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js';
+import * as THREE from 'three';
 import {OrbitControls} from 'https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/controls/OrbitControls.js';
 
 const canvas=document.querySelector('#pizzaCanvas'),stage=document.querySelector('#stage');
